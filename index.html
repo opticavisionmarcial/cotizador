@@ -90,6 +90,12 @@ details.help[open] summary::before{content:"− "}
 .btn-gold{background:var(--gold);color:#0D0D0D}
 .btn-gold:hover{filter:brightness(1.06)}
 .btn-ghost{background:transparent;border:1px solid var(--line-2);color:var(--fg)}
+.modelos{margin-top:12px;border:1px dashed var(--line-2);border-radius:10px;padding:12px 14px;background:var(--panel)}
+.modelos p{margin:0 0 10px;font-size:13.5px;font-weight:600}
+.modelos p.hint{font-weight:400;font-size:12.5px}
+.modelos-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.modelos-btns .btn{padding:11px 10px;font-size:14px}
+.btn-ig{background:linear-gradient(45deg,#F58529,#DD2A7B 55%,#8134AF);color:#fff}
 .btn-wa{background:#25D366;color:#06210f}
 .btn[aria-busy="true"]{opacity:.7}
 
@@ -396,6 +402,7 @@ var CONFIG = {
     return h;
   }
   var TIENDA = 'https://opticamarcial.mitiendanube.com';
+  var INSTAGRAM = 'https://www.instagram.com/opticamarcial/';
   function bloqueMontura(k, lens, promo) {
     var M = OM.PRECIOS.montura, P = OM.PRECIOS.promo2;
     var ops = [
@@ -405,7 +412,14 @@ var CONFIG = {
     ];
     return '<div class="cards frames">' + ops.map(function (o) {
       return '<button type="button" class="card' + (lens.montura === o.v ? ' on' : '') + '" data-g="' + k + '.montura" data-v="' + o.v + '"><span class="t">' + o.t + '</span><span class="d">' + o.d + '</span><span class="p sm">' + o.p + '</span></button>';
-    }).join('') + '</div><p class="hint">El modelo exacto lo eliges en la óptica o en nuestro <a href="' + TIENDA + '" target="_blank" rel="noopener" style="color:var(--gold-ink)">catálogo online</a>.</p>';
+    }).join('') + '</div>' + verModelos();
+  }
+
+  function verModelos() {
+    return '<div class="modelos"><p>Mira nuestros modelos clásicos, Merel y clip-on:</p><div class="modelos-btns">' +
+      '<a class="btn btn-ig" href="' + INSTAGRAM + '" target="_blank" rel="noopener">Ver en Instagram</a>' +
+      '<a class="btn btn-ghost" href="' + TIENDA + '" target="_blank" rel="noopener">Ver catálogo</a></div>' +
+      '<p class="hint" style="margin:8px 0 0">El modelo exacto lo eliges después por WhatsApp o en la óptica.</p></div>';
   }
 
   function render() {
