@@ -63,7 +63,7 @@
     return 0;
   }
 
-  var NOMBRE_TRAT = { ninguno: 'Solo antirreflejo + UV', azul: 'Filtro luz azul', foto: 'Fotocromático + filtro azul', sol: 'Lente de sol' };
+  var NOMBRE_TRAT = { ninguno: 'Antirreflejo + filtro UV', azul: 'Filtro luz azul', foto: 'Fotocromático + filtro azul', sol: 'Lente de sol' };
   var NOMBRE_MONT = { clasica: 'Montura clásica', merel: 'Montura Merel', clipon: 'Montura clip-on' };
 
   function nombreTrat(t, color, intensidad, presbi) {
@@ -102,19 +102,19 @@
       if (c.modo === 'promo') {
         c.l1.montura = 'clasica';
         var base = c.l2.montura === 'clasica' ? PRECIOS.promo2.clasicoClasico : PRECIOS.promo2.clasicoMerelClip;
-        out.lineas.push({ t: 'Promo 2 lentes completos con antirreflejo + UV', v: base });
+        out.lineas.push({ t: 'Promo 2 lentes completos', v: base });
         out.lineas.push({ t: 'Lente 1: montura clásica', v: 0 });
         out.lineas.push({ t: 'Lente 2: ' + NOMBRE_MONT[c.l2.montura].replace('Montura', 'montura'), v: 0 });
         ['l1', 'l2'].forEach(function (k, i) {
           var x = extraMono(c[k].trat, 'normal');
-          if (x) out.lineas.push({ t: 'Lente ' + (i + 1) + ': ' + nombreTrat(c[k].trat, c[k].color, c[k].intensidad), v: x });
+          out.lineas.push({ t: 'Lente ' + (i + 1) + ': ' + nombreTrat(c[k].trat, c[k].color, c[k].intensidad), v: x });
         });
       } else {
         var precioBase = c.material === 'ultra' ? esc.ultra : esc.normal;
-        out.lineas.push({ t: '1 lente · cristal ' + (c.material === 'ultra' ? 'ultra delgado 1.67' : 'normal 1.56') + ' con antirreflejo + UV', v: precioBase });
+        out.lineas.push({ t: '1 lente completo · cristal ' + (c.material === 'ultra' ? 'ultra delgado 1.67' : 'normal 1.56'), v: precioBase });
         out.lineas.push({ t: NOMBRE_MONT[c.l1.montura], v: PRECIOS.montura[c.l1.montura] || 0 });
         var x1 = extraMono(c.l1.trat, c.material);
-        if (x1) out.lineas.push({ t: nombreTrat(c.l1.trat, c.l1.color, c.l1.intensidad), v: x1 });
+        out.lineas.push({ t: 'Tratamiento: ' + nombreTrat(c.l1.trat, c.l1.color, c.l1.intensidad), v: x1 });
       }
     } else {
       var lista = rx.tipo === 'bifocal' ? PRECIOS.bifocal : PRECIOS.multifocal;
@@ -130,10 +130,10 @@
       c.opcion = op.id; c.modo = 'uno';
       out.info.disponible = { azul: op.azul, foto: op.foto, sol: true };
       if ((c.l1.trat === 'azul' && !op.azul) || (c.l1.trat === 'foto' && !op.foto)) c.l1.trat = 'ninguno';
-      out.lineas.push({ t: op.nombre + ' (' + op.detalle.split(' · ')[0] + ') con antirreflejo + UV', v: op.precio });
+      out.lineas.push({ t: op.nombre + ' (' + op.detalle.split(' · ')[0] + ')', v: op.precio });
       out.lineas.push({ t: NOMBRE_MONT[c.l1.montura], v: PRECIOS.montura[c.l1.montura] || 0 });
       var px = PRECIOS.presbiExtras[c.l1.trat] || 0;
-      if (px) out.lineas.push({ t: nombreTrat(c.l1.trat, c.l1.color, c.l1.intensidad, true), v: px });
+      out.lineas.push({ t: 'Tratamiento: ' + nombreTrat(c.l1.trat, c.l1.color, c.l1.intensidad, true), v: px });
       if (esf > 7 || cil > 4) out.lineas.push({ t: 'Recargo graduación alta', v: PRECIOS.presbiRecargoAlta });
     }
     out.total = out.lineas.reduce(function (s, l) { return s + l.v; }, 0);

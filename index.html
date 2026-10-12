@@ -438,7 +438,7 @@ var CONFIG = {
     var X = presbi ? OM.PRECIOS.presbiExtras : OM.PRECIOS.monoExtras;
     var fotoP = presbi ? X.foto : (material === 'ultra' ? X.fotoUltra : X.foto);
     var h = '<div class="seg">' +
-      segBtn(k + '.trat', 'ninguno', 'Transparente', '', lens.trat === 'ninguno') +
+      segBtn(k + '.trat', 'ninguno', 'Antirreflejo', 'incluido', lens.trat === 'ninguno') +
       segBtn(k + '.trat', 'azul', 'Filtro luz azul', '+' + fmt(X.azul), lens.trat === 'azul', !disp.azul) +
       segBtn(k + '.trat', 'foto', presbi ? 'Fotocromático' : 'Fotocromático + azul', '+' + fmt(fotoP), lens.trat === 'foto', !disp.foto) +
       segBtn(k + '.trat', 'sol', 'Lente de sol', '+' + fmt(X.sol), lens.trat === 'sol') +
