@@ -103,6 +103,9 @@ details.help[open] summary::before{content:"− "}
 .sub-h{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin:18px 0 8px}
 .cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .cards.one{grid-template-columns:1fr}
+.cards.frames{grid-template-columns:repeat(3,1fr)}
+.card .p.sm{font-family:var(--f-body);font-size:13.5px;font-weight:700}
+@media (max-width:420px){.cards.frames{grid-template-columns:1fr}}
 .card{position:relative;background:var(--bg);box-shadow:0 1px 2px rgba(22,21,15,.04);border:1px solid var(--line-2);border-radius:10px;padding:14px 12px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:4px;min-width:0}
 .card.on{border-color:var(--gold);background:var(--gold-soft)}
 .card .t{font-weight:700;font-size:14.5px}
@@ -392,13 +395,17 @@ var CONFIG = {
     if (notas.length) h += '<p class="hint">' + notas.join(' y ').replace(/^./, function (c) { return c.toUpperCase(); }) + ' en este cristal: <a href="#" class="wa-help" style="color:var(--gold-ink)">consúltanos por WhatsApp</a>.</p>';
     return h;
   }
-  function bloqueMontura(k, lens, fijaClasica) {
-    var M = OM.PRECIOS.montura;
-    if (fijaClasica) return '<div class="seg">' + segBtn(k + '.montura', 'clasica', 'Clásica', '', true) + '</div>';
-    return '<div class="seg">' +
-      segBtn(k + '.montura', 'clasica', 'Clásica', '', lens.montura === 'clasica') +
-      segBtn(k + '.montura', 'merel', 'Merel', '+' + fmt(M.merel), lens.montura === 'merel') +
-      segBtn(k + '.montura', 'clipon', 'Clip-on', '+' + fmt(M.clipon), lens.montura === 'clipon') + '</div>';
+  var TIENDA = 'https://opticamarcial.mitiendanube.com';
+  function bloqueMontura(k, lens, promo) {
+    var M = OM.PRECIOS.montura, P = OM.PRECIOS.promo2;
+    var ops = [
+      { v: 'clasica', t: 'Clásica', d: 'Acetato o metal, diseños clásicos', p: promo ? fmt(P.clasicoClasico) + ' total' : 'Incluida' },
+      { v: 'merel', t: 'Merel', d: 'Monturas de marca Merel', p: promo ? fmt(P.clasicoMerelClip) + ' total' : '+' + fmt(M.merel) },
+      { v: 'clipon', t: 'Clip-on', d: 'Con suplemento de sol que se acopla', p: promo ? fmt(P.clasicoMerelClip) + ' total' : '+' + fmt(M.clipon) }
+    ];
+    return '<div class="cards frames">' + ops.map(function (o) {
+      return '<button type="button" class="card' + (lens.montura === o.v ? ' on' : '') + '" data-g="' + k + '.montura" data-v="' + o.v + '"><span class="t">' + o.t + '</span><span class="d">' + o.d + '</span><span class="p sm">' + o.p + '</span></button>';
+    }).join('') + '</div><p class="hint">El modelo exacto lo eliges en la óptica o en nuestro <a href="' + TIENDA + '" target="_blank" rel="noopener" style="color:var(--gold-ink)">catálogo online</a>.</p>';
   }
 
   function render() {
@@ -440,14 +447,11 @@ var CONFIG = {
 
       if (c.modo === 'promo') {
         h += '<div class="lens-box"><h3>Lente 1 · montura clásica</h3><div class="sub-h" style="margin-top:8px">Tratamiento</div>' + bloqueTrat('l1', c.l1, q.info.disponible, false, 'normal') + '</div>';
-        h += '<div class="lens-box"><h3>Lente 2</h3><div class="sub-h" style="margin-top:8px">Montura</div><div class="seg">' +
-          segBtn('l2.montura', 'clasica', 'Clásica', fmt(OM.PRECIOS.promo2.clasicoClasico) + ' total', c.l2.montura === 'clasica') +
-          segBtn('l2.montura', 'merel', 'Merel', fmt(OM.PRECIOS.promo2.clasicoMerelClip) + ' total', c.l2.montura === 'merel') +
-          segBtn('l2.montura', 'clipon', 'Clip-on', fmt(OM.PRECIOS.promo2.clasicoMerelClip) + ' total', c.l2.montura === 'clipon') +
-          '</div><div class="sub-h">Tratamiento</div>' + bloqueTrat('l2', c.l2, q.info.disponible, false, 'normal') + '</div>';
+        h += '<div class="lens-box"><h3>Lente 2</h3><div class="sub-h" style="margin-top:8px">Tipo de montura</div>' + bloqueMontura('l2', c.l2, true) +
+          '<div class="sub-h">Tratamiento</div>' + bloqueTrat('l2', c.l2, q.info.disponible, false, 'normal') + '</div>';
         h += '<p class="hint">Los tratamientos se suman por cada lente que los lleve.</p>';
       } else {
-        h += '<div class="sub-h">Montura</div>' + bloqueMontura('l1', c.l1) +
+        h += '<div class="sub-h">Tipo de montura</div>' + bloqueMontura('l1', c.l1) +
              '<div class="sub-h">Tratamiento</div>' + bloqueTrat('l1', c.l1, q.info.disponible, false, c.material);
       }
     } else {
@@ -459,7 +463,7 @@ var CONFIG = {
       });
       h += '</div>';
       if (r.tipo === 'bifocal' && ops.length < 3) h += '<p class="hint">Con tu ADD el bifocal clásico no está disponible; te mostramos las opciones que sí sirven.</p>';
-      h += '<div class="sub-h">Montura</div>' + bloqueMontura('l1', c.l1) +
+      h += '<div class="sub-h">Tipo de montura</div>' + bloqueMontura('l1', c.l1) +
            '<div class="sub-h">Tratamiento</div>' + bloqueTrat('l1', c.l1, q.info.disponible, true);
       h += '<p class="hint">Te enviaremos una guía por WhatsApp para tomar bien tus medidas.</p>';
     }
@@ -470,7 +474,7 @@ var CONFIG = {
     res.hidden = false;
     $('qid').textContent = 'N° ' + state.id + ' · ' + nombreTipo(r.tipo);
     if (q.estado === 'ok') {
-      $('lines').innerHTML = q.lineas.map(function (l) { return '<div class="ln"><span>' + esc(l.t) + '</span><span>' + fmt(l.v) + '</span></div>'; }).join('');
+      $('lines').innerHTML = q.lineas.map(function (l) { return '<div class="ln"><span>' + esc(l.t) + '</span><span>' + (l.v ? fmt(l.v) : 'Incluida') + '</span></div>'; }).join('');
       $('total').textContent = fmt(q.total); $('barTotal').textContent = fmt(q.total);
     } else {
       $('lines').innerHTML = '<div class="ln"><span>' + (q.estado === 'consulta' ? 'Cotización personalizada por WhatsApp' : 'Falta la ADD de tu receta') + '</span><span>—</span></div>';
@@ -492,7 +496,7 @@ var CONFIG = {
     if (r.tipo !== 'mono' && r.add) L.push('ADD: +' + r.add.toFixed(2));
     if (r.dp) L.push('DP: ' + r.dp + ' mm');
     if (q.estado === 'ok') {
-      q.lineas.forEach(function (l) { L.push('• ' + l.t + ': ' + fmt(l.v)); });
+      q.lineas.forEach(function (l) { L.push('• ' + l.t + ': ' + (l.v ? fmt(l.v) : 'incluida')); });
       L.push('TOTAL: ' + fmt(q.total));
     } else L.push('Requiere cotización personalizada');
     return L.join('\n');
