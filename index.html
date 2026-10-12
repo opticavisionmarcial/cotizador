@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cotiza tus lentes · Óptica Marcial</title>
+<meta name="description" content="Ingresa tu receta y conoce al instante el precio de tus lentes. Promo 2 lentes completos desde $49.990. Agustinas 853, Santiago Centro.">
+<meta name="theme-color" content="#FFFFFF">
+<meta property="og:title" content="Cotiza tus lentes con receta · Óptica Marcial">
+<meta property="og:description" content="Conoce tu precio en 1 minuto. Promo 2 lentes completos desde $49.990.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: una columna estrecha tipo "ficha de receta", pasos numerados porque el orden importa,
+   barra inferior fija con el total una vez revelado el precio. Marca: negro + dorado. */
+:root{
+  --bg:#FFFFFF; --panel:#FBFAF6; --panel-2:#F5F2EA; --line:#ECE7DB; --line-2:#DDD6C6;
+  --fg:#16150F; --mut:#6D6656; --gold:#D4AF37; --gold-ink:#9A7712; --gold-soft:rgba(212,175,55,.12);
+  --ok:#1F7A4A; --ok-soft:rgba(31,122,74,.08); --warn:#B4541A;
+  --f-display:"Bodoni Moda", "Didot", Georgia, serif;
+  --f-body:"Manrope", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --r:12px;
+  color-scheme:light;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--fg)}
+body{font-family:var(--f-body);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:620px;margin:0 auto;padding-inline:16px;padding-block:28px 140px}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* Encabezado */
+.brand{display:flex;align-items:center;gap:10px;justify-content:center}
+.iso{width:34px;height:34px;border:1px solid var(--gold);border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);color:var(--gold-ink);font-size:19px;font-weight:700}
+.brand b{letter-spacing:.32em;font-size:12px;color:var(--gold-ink);font-weight:700}
+h1{font-family:var(--f-display);font-weight:500;font-size:clamp(30px,7.4vw,42px);line-height:1.08;text-align:center;margin:22px 0 10px;text-wrap:balance}
+h1 em{font-style:italic;color:var(--gold-ink)}
+.lead{color:var(--mut);text-align:center;max-width:46ch;margin:0 auto}
+.promo-strip{margin:20px auto 0;display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.chip{border:1px solid var(--line-2);border-radius:999px;padding:6px 12px;font-size:12.5px;color:var(--fg);white-space:nowrap}
+.chip strong{color:var(--gold-ink);font-variant-numeric:tabular-nums}
+
+/* Pasos */
+.step{margin-top:26px;background:var(--bg);box-shadow:0 1px 3px rgba(22,21,15,.05);border:1px solid var(--line);border-radius:var(--r);padding:20px 18px}
+.step-h{display:flex;align-items:baseline;gap:12px;margin-bottom:16px}
+.num{font-family:var(--f-display);color:var(--gold-ink);font-size:26px;line-height:1;min-width:20px}
+.step-h h2{margin:0;font-size:17px;font-weight:700}
+.step-h p{margin:2px 0 0;color:var(--mut);font-size:13px}
+.locked{opacity:.45;pointer-events:none;filter:saturate(.6)}
+
+label.f{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+.inp{width:100%;background:#fff;border:1px solid var(--line-2);border-radius:10px;padding:12px 13px;font-size:16px;outline:none}
+.inp:focus{border-color:var(--gold)}
+select.inp{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--mut) 50%),linear-gradient(135deg,var(--mut) 50%,transparent 50%);background-position:calc(100% - 16px) 52%,calc(100% - 11px) 52%;background-size:5px 5px;background-repeat:no-repeat;padding-right:28px;font-variant-numeric:tabular-nums}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stack{display:grid;gap:14px}
+.err{color:var(--warn);font-size:13px;margin-top:6px}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--mut);cursor:pointer}
+.check input{width:18px;height:18px;accent-color:var(--gold);margin-top:2px;flex-shrink:0}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+/* Tipo de lente */
+.tipos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.opt{background:var(--panel);border:1px solid var(--line-2);border-radius:10px;padding:13px 10px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:3px;min-width:0}
+.opt b{font-size:14.5px}
+.opt span{font-size:12px;color:var(--mut);line-height:1.35}
+.opt.on{border-color:var(--gold);background:var(--gold-soft)}
+.opt[disabled]{opacity:.38;cursor:not-allowed}
+.hint{font-size:12.5px;color:var(--mut);margin-top:10px}
+
+/* Receta */
+.rx{display:grid;grid-template-columns:44px 1fr 1fr .8fr;gap:8px;align-items:end}
+.rx .eye{font-weight:700;padding-bottom:12px;color:var(--gold-ink);font-size:14px}
+.rx .ch{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut)}
+.rx .inp{padding:11px 9px;font-size:15px}
+details.help{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+details.help summary{cursor:pointer;color:var(--gold-ink);font-size:13.5px;font-weight:600;list-style:none}
+details.help summary::-webkit-details-marker{display:none}
+details.help summary::before{content:"+ "}
+details.help[open] summary::before{content:"− "}
+.help-body{color:var(--mut);font-size:13.5px;margin-top:10px;display:grid;gap:8px}
+.help-body b{color:var(--fg)}
+.mini-rx{border:1px dashed var(--line-2);border-radius:8px;padding:10px;font-variant-numeric:tabular-nums;font-size:12.5px;overflow-x:auto}
+.mini-rx table{border-collapse:collapse;width:100%;min-width:300px}
+.mini-rx td,.mini-rx th{padding:3px 6px;text-align:center;border-bottom:1px solid var(--line)}
+.mini-rx th{color:var(--mut);font-weight:600}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;border-radius:10px;padding:15px 18px;font-weight:700;font-size:15.5px;cursor:pointer;text-decoration:none}
+.btn-gold{background:var(--gold);color:#0D0D0D}
+.btn-gold:hover{filter:brightness(1.06)}
+.btn-ghost{background:transparent;border:1px solid var(--line-2);color:var(--fg)}
+.btn-wa{background:#25D366;color:#06210f}
+.btn[aria-busy="true"]{opacity:.7}
+
+/* Resultado */
+.notice{border-radius:10px;padding:12px 14px;font-size:13.5px;display:flex;gap:10px;align-items:flex-start;margin-bottom:14px}
+.notice.ok{background:var(--ok-soft);border:1px solid rgba(31,122,74,.3)}
+.notice.ok b{color:var(--ok)}
+.notice.info{background:var(--gold-soft);border:1px solid rgba(212,175,55,.4)}
+.notice.info b{color:var(--gold-ink)}
+.notice .ic{font-size:16px;line-height:1.3}
+.sub-h{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin:18px 0 8px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cards.one{grid-template-columns:1fr}
+.card{position:relative;background:var(--bg);box-shadow:0 1px 2px rgba(22,21,15,.04);border:1px solid var(--line-2);border-radius:10px;padding:14px 12px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:4px;min-width:0}
+.card.on{border-color:var(--gold);background:var(--gold-soft)}
+.card .t{font-weight:700;font-size:14.5px}
+.card .d{font-size:12px;color:var(--mut);line-height:1.35}
+.card .p{font-family:var(--f-display);font-size:22px;color:var(--gold-ink);font-variant-numeric:tabular-nums;margin-top:4px}
+.card .p small{font-family:var(--f-body);font-size:11px;color:var(--mut)}
+.badge{position:absolute;top:-9px;right:10px;background:var(--gold);color:#0D0D0D;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:999px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{background:#fff;border:1px solid var(--line-2);border-radius:999px;padding:9px 13px;font-size:13.5px;cursor:pointer}
+.seg button.on{border-color:var(--gold);background:var(--gold-soft);color:var(--fg)}
+.seg button[disabled]{opacity:.35;cursor:not-allowed}
+.seg .plus{color:var(--gold-ink);font-variant-numeric:tabular-nums;margin-left:4px;font-size:12.5px}
+.lens-box{border:1px solid var(--line);border-radius:10px;padding:14px;margin-top:10px;background:var(--panel-2)}
+.lens-box h3{margin:0 0 4px;font-size:14px}
+.colorrow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+
+.summary{margin-top:26px;border:1px solid var(--gold);border-radius:var(--r);padding:20px 18px;background:linear-gradient(180deg,#FBF6E6, var(--bg))}
+.summary h2{font-family:var(--f-display);font-weight:500;font-size:24px;margin:0 0 4px}
+.qid{font-size:12px;color:var(--mut);letter-spacing:.06em}
+.lines{margin:14px 0 6px;display:grid;gap:8px}
+.ln{display:flex;justify-content:space-between;gap:12px;font-size:14px}
+.ln span:first-child{color:var(--mut);min-width:0}
+.ln span:last-child{font-variant-numeric:tabular-nums;white-space:nowrap}
+.total{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line-2);padding-top:12px;margin-top:6px}
+.total span{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--mut)}
+.total strong{font-family:var(--f-display);font-size:34px;color:var(--gold-ink);font-variant-numeric:tabular-nums}
+.incl{font-size:12.5px;color:var(--mut);margin:10px 0 16px}
+.trust{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.trust div{border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12px;color:var(--mut);text-align:center}
+.trust b{display:block;color:var(--fg);font-size:13px}
+
+.bar{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border-top:1px solid var(--line-2);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;gap:12px;align-items:center;justify-content:center;transform:translateY(110%);transition:transform .25s ease}
+.bar.show{transform:none}
+.bar .bt{max-width:620px;width:100%;display:flex;gap:12px;align-items:center}
+.bar .tt{flex:1;min-width:0}
+.bar .tt small{display:block;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.08em}
+.bar .tt b{font-family:var(--f-display);font-size:24px;color:var(--gold-ink);font-variant-numeric:tabular-nums}
+.bar .btn{width:auto;padding:13px 16px;font-size:14.5px}
+
+footer{margin-top:34px;text-align:center;color:var(--mut);font-size:12.5px;line-height:1.7}
+footer .tag{font-family:var(--f-display);font-style:italic;color:var(--gold-ink);font-size:14px;margin-top:8px}
+@media (max-width:420px){
+  .tipos{grid-template-columns:1fr}
+  .opt{flex-direction:row;justify-content:space-between;align-items:center}
+  .trust{grid-template-columns:1fr}
+  .rx{grid-template-columns:36px 1fr 1fr .9fr;gap:6px}
+}
+@media (prefers-reduced-motion:reduce){.bar{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand"><div class="iso" aria-hidden="true">M</div><b>ÓPTICA MARCIAL</b></div>
+    <h1>Conoce el precio de tus lentes <em>en un minuto</em></h1>
+    <p class="lead">Ingresa tu receta, elige montura y cristales, y te mostramos el valor al instante. Sin compromiso.</p>
+    <div class="promo-strip">
+      <span class="chip">1 lente completo <strong>$34.990</strong></span>
+      <span class="chip">Promo 2 lentes <strong>$49.990</strong></span>
+      <span class="chip">Delivery en Santiago y envíos a regiones</span>
+    </div>
+  </header>
+
+  <!-- PASO 1 -->
+  <section class="step" id="s1">
+    <div class="step-h"><span class="num">1</span><div><h2>Tus datos</h2><p>Para guardarte la cotización y responderte por WhatsApp.</p></div></div>
+    <form class="stack" id="fDatos" novalidate>
+      <div><label class="f" for="nombre">Nombre y apellido</label><input class="inp" id="nombre" autocomplete="name" placeholder="Ej: Carolina Rojas"></div>
+      <div class="grid2">
+        <div><label class="f" for="correo">Correo</label><input class="inp" id="correo" type="email" inputmode="email" autocomplete="email" placeholder="tucorreo@gmail.com"></div>
+        <div><label class="f" for="telefono">WhatsApp</label><input class="inp" id="telefono" type="tel" inputmode="tel" autocomplete="tel" placeholder="+56 9 1234 5678"></div>
+      </div>
+      <div class="hp" aria-hidden="true"><label for="website">No llenar</label><input id="website" tabindex="-1" autocomplete="off"></div>
+      <label class="check"><input type="checkbox" id="ofertas" checked><span>Quiero recibir ofertas y novedades de Óptica Marcial en mi correo. Puedo darme de baja cuando quiera.</span></label>
+    </form>
+  </section>
+
+  <!-- PASO 2 -->
+  <section class="step" id="s2">
+    <div class="step-h"><span class="num">2</span><div><h2>¿Qué lentes necesitas?</h2><p>Si tu receta trae <b>ADD</b> (adición), son bifocales o multifocales.</p></div></div>
+    <div class="tipos" role="radiogroup" aria-label="Tipo de lente">
+      <button type="button" class="opt on" data-tipo="mono" role="radio" aria-checked="true"><b>Monofocal</b><span>Para lejos o para cerca</span></button>
+      <button type="button" class="opt" data-tipo="bifocal" role="radio" aria-checked="false"><b>Bifocal</b><span>Lejos y cerca, con línea</span></button>
+      <button type="button" class="opt" data-tipo="multifocal" role="radio" aria-checked="false"><b>Multifocal</b><span>Lejos, intermedio y cerca, sin línea</span></button>
+    </div>
+  </section>
+
+  <!-- PASO 3 -->
+  <section class="step" id="s3">
+    <div class="step-h"><span class="num">3</span><div><h2>Tu receta</h2><p>Copia los valores tal como aparecen. Si un casillero viene vacío, déjalo en 0.00.</p></div></div>
+    <div class="rx">
+      <span></span><span class="ch">Esférico</span><span class="ch">Cilindro</span><span class="ch">Eje</span>
+      <span class="eye" title="Ojo derecho">OD</span>
+      <select class="inp" id="odEsf" aria-label="Esférico ojo derecho"></select>
+      <select class="inp" id="odCil" aria-label="Cilindro ojo derecho"></select>
+      <input class="inp" id="odEje" inputmode="numeric" maxlength="3" placeholder="0–180" aria-label="Eje ojo derecho">
+      <span class="eye" title="Ojo izquierdo">OI</span>
+      <select class="inp" id="oiEsf" aria-label="Esférico ojo izquierdo"></select>
+      <select class="inp" id="oiCil" aria-label="Cilindro ojo izquierdo"></select>
+      <input class="inp" id="oiEje" inputmode="numeric" maxlength="3" placeholder="0–180" aria-label="Eje ojo izquierdo">
+    </div>
+    <div class="grid2" style="margin-top:12px">
+      <div id="addWrap" hidden><label class="f" for="add">ADD (adición)</label><select class="inp" id="add"></select></div>
+      <div><label class="f" for="dp">Distancia pupilar <span style="text-transform:none">(opcional)</span></label><input class="inp" id="dp" inputmode="numeric" maxlength="3" placeholder="Ej: 62"></div>
+    </div>
+    <details class="help">
+      <summary>¿Cómo leo mi receta?</summary>
+      <div class="help-body">
+        <p style="margin:0"><b>OD</b> es tu ojo derecho y <b>OI</b> el izquierdo (a veces dice RE/LE o "lejos" y "cerca").</p>
+        <p style="margin:0"><b>Esférico (ESF)</b> es la graduación principal: negativa (−) para miopía y positiva (+) para hipermetropía. <b>Cilindro (CIL)</b> corrige el astigmatismo y el <b>Eje</b> es un número entre 0 y 180.</p>
+        <p style="margin:0"><b>ADD</b> aparece cuando necesitas ver de cerca además de lejos. Si tu receta la trae, elige bifocal o multifocal.</p>
+        <div class="mini-rx"><table><tr><th></th><th>ESF</th><th>CIL</th><th>EJE</th><th>ADD</th></tr><tr><th>OD</th><td>−1.25</td><td>−0.50</td><td>180</td><td rowspan="2">+2.00</td></tr><tr><th>OI</th><td>−1.50</td><td>−0.75</td><td>10</td></tr></table></div>
+        <p style="margin:0">¿Tienes dudas o no tienes receta? <a href="#" class="wa-help" style="color:var(--gold-ink)">Escríbenos por WhatsApp</a> y te ayudamos.</p>
+      </div>
+    </details>
+    <div id="errRx" class="err" hidden></div>
+    <div style="margin-top:18px"><button type="button" class="btn btn-gold" id="btnVer">Ver mi precio</button></div>
+    <div id="errDatos" class="err" hidden></div>
+  </section>
+
+  <!-- PASO 4 -->
+  <section class="step locked" id="s4" aria-disabled="true">
+    <div class="step-h"><span class="num">4</span><div><h2>Arma tus lentes</h2><p>Elige cristal, montura y tratamiento. El precio se actualiza al instante.</p></div></div>
+    <div id="config"><p class="hint" style="margin:0">Completa los pasos anteriores y toca <b>Ver mi precio</b>.</p></div>
+  </section>
+
+  <!-- RESUMEN -->
+  <section class="summary" id="resumen" hidden>
+    <h2>Tu cotización</h2>
+    <div class="qid" id="qid"></div>
+    <div class="lines" id="lines"></div>
+    <div class="total"><span>Total</span><strong id="total">$0</strong></div>
+    <p class="incl">Incluye montura, 2 cristales con antirreflejo y filtro UV, armado y examen visual gratis en la óptica.</p>
+    <a class="btn btn-wa" id="btnWa" href="#" target="_blank" rel="noopener">Confirmar por WhatsApp</a>
+    <p class="hint" style="text-align:center">Te respondemos para coordinar la toma de medidas, el pago y la entrega: retiro en la óptica, delivery dentro de Santiago o envío a regiones.</p>
+    <div class="trust">
+      <div><b>Delivery</b>dentro de Santiago</div>
+      <div><b>Envíos</b>a regiones</div>
+      <div><b>Examen visual</b>gratis</div>
+    </div>
+  </section>
+
+  <footer>
+    Óptica Marcial · Agustinas 853, Of. 835, Santiago Centro<br>
+    Lunes a viernes 10:00–19:00 · Sábado 10:00–15:00<br>
+    WhatsApp +56 9 3496 5751
+    <div class="tag">Elegancia que se ve. Calidad que se siente.</div>
+  </footer>
+</div>
+
+<div class="bar" id="bar" aria-hidden="true">
+  <div class="bt">
+    <div class="tt"><small>Tu total</small><b id="barTotal">$0</b></div>
+    <a class="btn btn-wa" id="barWa" href="#" target="_blank" rel="noopener">Confirmar por WhatsApp</a>
+  </div>
+</div>
+
+<script src="precios.js"></script>
+<script>
+/* ====== CONFIGURACIÓN ====== */
+var CONFIG = {
+  ENDPOINT: 'https://script.google.com/macros/s/AKfycbxNODCMczFLpbrsYlrKsi3NqicgdNgwMoGehLlWaV_E2gAThs4aFbpejgE7nfGYIorr/exec',                 // URL de la aplicación web de Google Apps Script (termina en /exec)
+  WHATSAPP: '56934965751',      // número de la óptica, sin + ni espacios
+  PIXEL_ID: ''                  // ID del Pixel de Meta (opcional)
+};
+/* =========================== */
+
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var fmt = function (n) { return '$' + Math.round(n || 0).toLocaleString('es-CL'); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+
+  var state = {
+    tipo: 'mono', revelado: false, id: null, ultimoEnviado: '',
+    cfg: { modo: 'uno', material: 'normal', opcion: null,
+           l1: { montura: 'clasica', trat: 'ninguno', color: 'Gris', intensidad: 'Oscura' },
+           l2: { montura: 'clasica', trat: 'ninguno', color: 'Gris', intensidad: 'Oscura' } }
+  };
+  var ultimo = null;
+
+  /* ---- Selects de receta ---- */
+  function sgn(v) { return v > 0 ? '+' + v.toFixed(2) : v < 0 ? '−' + Math.abs(v).toFixed(2) : '0.00'; }
+  function fill(sel, vals, def, extraFirst) {
+    var h = extraFirst || '';
+    vals.forEach(function (v) { h += '<option value="' + v + '"' + (v === def ? ' selected' : '') + '>' + sgn(v) + '</option>'; });
+    sel.innerHTML = h;
+  }
+  var esfVals = []; for (var v = 12; v >= -20.001; v -= 0.25) esfVals.push(Math.round(v * 100) / 100);
+  var cilVals = []; for (v = 0; v >= -8.001; v -= 0.25) cilVals.push(Math.round(v * 100) / 100);
+  for (v = 0.25; v <= 6.001; v += 0.25) cilVals.push(Math.round(v * 100) / 100);
+  var addVals = []; for (v = 0.75; v <= 4.001; v += 0.25) addVals.push(Math.round(v * 100) / 100);
+  ['odEsf', 'oiEsf'].forEach(function (id) { fill($(id), esfVals, 0); });
+  ['odCil', 'oiCil'].forEach(function (id) { fill($(id), cilVals, 0); });
+  fill($('add'), addVals, null, '<option value="">Elige</option>');
+
+  function rx() {
+    return {
+      tipo: state.tipo,
+      odEsf: parseFloat($('odEsf').value) || 0, odCil: parseFloat($('odCil').value) || 0,
+      oiEsf: parseFloat($('oiEsf').value) || 0, oiCil: parseFloat($('oiCil').value) || 0,
+      odEje: $('odEje').value.trim(), oiEje: $('oiEje').value.trim(),
+      add: parseFloat($('add').value) || 0, dp: $('dp').value.trim()
+    };
+  }
+
+  /* ---- Paso 2: tipo ---- */
+  document.querySelectorAll('.tipos .opt').forEach(function (b) {
+    b.addEventListener('click', function () {
+      state.tipo = b.dataset.tipo;
+      document.querySelectorAll('.tipos .opt').forEach(function (x) {
+        var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-checked', on);
+      });
+      $('addWrap').hidden = state.tipo === 'mono';
+      state.cfg.opcion = null;
+      if (state.tipo !== 'mono') { state.cfg.modo = 'uno'; }
+      render();
+    });
+  });
+  ['odEsf', 'odCil', 'oiEsf', 'oiCil', 'add'].forEach(function (id) { $(id).addEventListener('change', render); });
+  ['odEje', 'oiEje', 'dp'].forEach(function (id) { $(id).addEventListener('input', function () { this.value = this.value.replace(/\D/g, ''); render(); }); });
+
+  /* ---- Validación datos ---- */
+  function datos() {
+    return {
+      nombre: $('nombre').value.trim(), correo: $('correo').value.trim(),
+      telefono: $('telefono').value.trim(), ofertas: $('ofertas').checked, website: $('website').value
+    };
+  }
+  function validarDatos() {
+    var d = datos(), e = [];
+    if (d.nombre.length < 3) e.push('tu nombre');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(d.correo)) e.push('un correo válido');
+    if (d.telefono.replace(/\D/g, '').length < 8) e.push('tu WhatsApp');
+    return e;
+  }
+
+  $('btnVer').addEventListener('click', function () {
+    var e = validarDatos();
+    var box = $('errDatos');
+    if (e.length) {
+      box.hidden = false; box.textContent = 'Para ver tu precio, completa ' + e.join(', ') + ' en el paso 1.';
+      $('s1').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+    var r = rx();
+    if (state.tipo !== 'mono' && !r.add) {
+      box.hidden = false; box.textContent = 'Elige la ADD (adición) de tu receta. Si no la trae, tus lentes son monofocales.';
+      return;
+    }
+    box.hidden = true;
+    if (!state.id) state.id = 'OM-' + Date.now().toString(36).slice(-5).toUpperCase() + Math.floor(Math.random() * 90 + 10);
+    state.revelado = true;
+    $('s4').classList.remove('locked'); $('s4').removeAttribute('aria-disabled');
+    render();
+    enviar('cotizacion');
+    track('Lead');
+    $('s4').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  /* ---- Render del paso 4 + resumen ---- */
+  function segBtn(group, val, label, plus, on, disabled) {
+    return '<button type="button" data-g="' + group + '" data-v="' + val + '"' + (on ? ' class="on"' : '') + (disabled ? ' disabled' : '') + '>' + label + (plus ? '<span class="plus">' + plus + '</span>' : '') + '</button>';
+  }
+  function bloqueTrat(k, lens, disp, presbi, material) {
+    var X = presbi ? OM.PRECIOS.presbiExtras : OM.PRECIOS.monoExtras;
+    var fotoP = presbi ? X.foto : (material === 'ultra' ? X.fotoUltra : X.foto);
+    var h = '<div class="seg">' +
+      segBtn(k + '.trat', 'ninguno', 'Transparente', '', lens.trat === 'ninguno') +
+      segBtn(k + '.trat', 'azul', 'Filtro luz azul', '+' + fmt(X.azul), lens.trat === 'azul', !disp.azul) +
+      segBtn(k + '.trat', 'foto', presbi ? 'Fotocromático' : 'Fotocromático + azul', '+' + fmt(fotoP), lens.trat === 'foto', !disp.foto) +
+      segBtn(k + '.trat', 'sol', 'Lente de sol', '+' + fmt(X.sol), lens.trat === 'sol') +
+      '</div>';
+    if (lens.trat === 'foto') {
+      h += '<div class="colorrow"><div><label class="f" for="' + k + 'color">Color al sol</label><select class="inp" id="' + k + 'color" data-k="' + k + '" data-f="color">' +
+        ['Gris', 'Café'].map(function (c) { return '<option' + (lens.color === c ? ' selected' : '') + '>' + c + '</option>'; }).join('') + '</select></div></div>';
+    }
+    if (lens.trat === 'sol') {
+      h += '<div class="colorrow"><div><label class="f" for="' + k + 'color">Color</label><select class="inp" id="' + k + 'color" data-k="' + k + '" data-f="color">' +
+        ['Gris', 'Café', 'Verde', 'Azul', 'Rosado', 'Amarillo', 'Morado'].map(function (c) { return '<option' + (lens.color === c ? ' selected' : '') + '>' + c + '</option>'; }).join('') +
+        '</select></div><div><label class="f" for="' + k + 'int">Intensidad</label><select class="inp" id="' + k + 'int" data-k="' + k + '" data-f="intensidad">' +
+        ['Oscura', 'Media', 'Suave', 'Degradé'].map(function (c) { return '<option' + (lens.intensidad === c ? ' selected' : '') + '>' + c + '</option>'; }).join('') + '</select></div></div>';
+    }
+    var notas = [];
+    if (!disp.foto) notas.push('fotocromático');
+    if (!disp.azul) notas.push('filtro azul');
+    if (notas.length) h += '<p class="hint">' + notas.join(' y ').replace(/^./, function (c) { return c.toUpperCase(); }) + ' en este cristal: <a href="#" class="wa-help" style="color:var(--gold-ink)">consúltanos por WhatsApp</a>.</p>';
+    return h;
+  }
+  function bloqueMontura(k, lens, fijaClasica) {
+    var M = OM.PRECIOS.montura;
+    if (fijaClasica) return '<div class="seg">' + segBtn(k + '.montura', 'clasica', 'Clásica', '', true) + '</div>';
+    return '<div class="seg">' +
+      segBtn(k + '.montura', 'clasica', 'Clásica', '', lens.montura === 'clasica') +
+      segBtn(k + '.montura', 'merel', 'Merel', '+' + fmt(M.merel), lens.montura === 'merel') +
+      segBtn(k + '.montura', 'clipon', 'Clip-on', '+' + fmt(M.clipon), lens.montura === 'clipon') + '</div>';
+  }
+
+  function render() {
+    var r = rx();
+    if (!state.revelado) return;
+    var q = OM.cotizar(r, state.cfg);
+    // sincroniza correcciones del motor (ej: fotocromático no disponible)
+    state.cfg = q.cfg;
+    ultimo = { rx: r, q: q };
+    var c = state.cfg, h = '';
+
+    if (q.estado === 'falta_add') {
+      h = '<div class="notice info"><span class="ic">i</span><div>Elige la <b>ADD</b> de tu receta en el paso 3 para ver los precios.</div></div>';
+    } else if (q.estado === 'consulta') {
+      h = '<div class="notice info"><span class="ic">i</span><div><b>Cotización personalizada.</b> ' + esc(q.motivo) + ' Escríbenos y te damos el precio exacto hoy mismo.</div></div>';
+    } else if (r.tipo === 'mono') {
+      var e = q.info.escala;
+      if (e.promo) h += '<div class="notice ok"><span class="ic">✓</span><div><b>¡Tu receta califica para la promoción!</b> Llévate 2 lentes completos desde ' + fmt(OM.PRECIOS.promo2.clasicoClasico) + '.</div></div>';
+      else if (e.normal == null) h += '<div class="notice info"><span class="ic">i</span><div><b>Tu graduación requiere cristal ultra delgado 1.67.</b> Es la única forma de que tus lentes queden livianos y con buen aspecto.</div></div>';
+      else if (e.recomiendaUltra) h += '<div class="notice info"><span class="ic">★</span><div><b>Te recomendamos cristales ultra delgados.</b> Con tu graduación el cristal normal queda grueso; el 1.67 es más liviano, más delgado y se ve mejor.</div></div>';
+      else h += '<div class="notice info"><span class="ic">i</span><div>Tu receta está fuera del rango de la promoción (hasta esférico 4 y cilindro 2), pero igual tienes muy buenas opciones.</div></div>';
+
+      // cristal
+      if (e.normal != null) {
+        h += '<div class="sub-h">Cristal</div><div class="cards">' +
+          '<button type="button" class="card' + (c.material === 'normal' ? ' on' : '') + '" data-g="material" data-v="normal"><span class="t">Normal 1.56</span><span class="d">Antirreflejo + filtro UV</span><span class="p">' + fmt(e.normal) + ' <small>1 lente</small></span></button>' +
+          '<button type="button" class="card' + (c.material === 'ultra' ? ' on' : '') + '" data-g="material" data-v="ultra">' + (e.recomiendaUltra ? '<span class="badge">Recomendado</span>' : '') + '<span class="t">Ultra delgado 1.67</span><span class="d">Hasta 40% más delgado y liviano</span><span class="p">' + fmt(e.ultra) + ' <small>1 lente</small></span></button></div>';
+      } else {
+        h += '<div class="sub-h">Cristal</div><div class="cards one"><div class="card on"><span class="t">Ultra delgado 1.67</span><span class="d">Antirreflejo + filtro UV</span><span class="p">' + fmt(e.ultra) + ' <small>1 lente</small></span></div></div>';
+      }
+      // cuántos lentes
+      if (e.promo && c.material === 'normal') {
+        h += '<div class="sub-h">¿Cuántos lentes?</div><div class="cards">' +
+          '<button type="button" class="card' + (c.modo === 'uno' ? ' on' : '') + '" data-g="modo" data-v="uno"><span class="t">1 lente</span><span class="d">Completo, con montura</span><span class="p">' + fmt(e.normal) + '</span></button>' +
+          '<button type="button" class="card' + (c.modo === 'promo' ? ' on' : '') + '" data-g="modo" data-v="promo"><span class="badge">Promo</span><span class="t">2 lentes</span><span class="d">Clásico + clásico, o clásico + Merel / clip-on</span><span class="p">desde ' + fmt(OM.PRECIOS.promo2.clasicoClasico) + '</span></button></div>';
+      } else if (e.promo && c.material === 'ultra') {
+        h += '<p class="hint">La promo de 2 lentes es con cristal normal. Con ultra delgado se cotiza por lente.</p>';
+      }
+
+      if (c.modo === 'promo') {
+        h += '<div class="lens-box"><h3>Lente 1 · montura clásica</h3><div class="sub-h" style="margin-top:8px">Tratamiento</div>' + bloqueTrat('l1', c.l1, q.info.disponible, false, 'normal') + '</div>';
+        h += '<div class="lens-box"><h3>Lente 2</h3><div class="sub-h" style="margin-top:8px">Montura</div><div class="seg">' +
+          segBtn('l2.montura', 'clasica', 'Clásica', fmt(OM.PRECIOS.promo2.clasicoClasico) + ' total', c.l2.montura === 'clasica') +
+          segBtn('l2.montura', 'merel', 'Merel', fmt(OM.PRECIOS.promo2.clasicoMerelClip) + ' total', c.l2.montura === 'merel') +
+          segBtn('l2.montura', 'clipon', 'Clip-on', fmt(OM.PRECIOS.promo2.clasicoMerelClip) + ' total', c.l2.montura === 'clipon') +
+          '</div><div class="sub-h">Tratamiento</div>' + bloqueTrat('l2', c.l2, q.info.disponible, false, 'normal') + '</div>';
+        h += '<p class="hint">Los tratamientos se suman por cada lente que los lleve.</p>';
+      } else {
+        h += '<div class="sub-h">Montura</div>' + bloqueMontura('l1', c.l1) +
+             '<div class="sub-h">Tratamiento</div>' + bloqueTrat('l1', c.l1, q.info.disponible, false, c.material);
+      }
+    } else {
+      // bifocal / multifocal
+      var ops = q.info.opciones;
+      h += '<div class="sub-h">Cristal</div><div class="cards' + (ops.length % 2 ? ' one' : '') + '">';
+      ops.forEach(function (o) {
+        h += '<button type="button" class="card' + (c.opcion === o.id ? ' on' : '') + '" data-g="opcion" data-v="' + o.id + '"><span class="t">' + esc(o.nombre) + '</span><span class="d">' + esc(o.detalle) + '</span><span class="p">' + fmt(o.precio) + '</span></button>';
+      });
+      h += '</div>';
+      if (r.tipo === 'bifocal' && ops.length < 3) h += '<p class="hint">Con tu ADD el bifocal clásico no está disponible; te mostramos las opciones que sí sirven.</p>';
+      h += '<div class="sub-h">Montura</div>' + bloqueMontura('l1', c.l1) +
+           '<div class="sub-h">Tratamiento</div>' + bloqueTrat('l1', c.l1, q.info.disponible, true);
+      h += '<p class="hint">Te enviaremos una guía por WhatsApp para tomar bien tus medidas.</p>';
+    }
+    $('config').innerHTML = h;
+
+    // resumen
+    var res = $('resumen');
+    res.hidden = false;
+    $('qid').textContent = 'N° ' + state.id + ' · ' + nombreTipo(r.tipo);
+    if (q.estado === 'ok') {
+      $('lines').innerHTML = q.lineas.map(function (l) { return '<div class="ln"><span>' + esc(l.t) + '</span><span>' + fmt(l.v) + '</span></div>'; }).join('');
+      $('total').textContent = fmt(q.total); $('barTotal').textContent = fmt(q.total);
+    } else {
+      $('lines').innerHTML = '<div class="ln"><span>' + (q.estado === 'consulta' ? 'Cotización personalizada por WhatsApp' : 'Falta la ADD de tu receta') + '</span><span>—</span></div>';
+      $('total').textContent = 'A cotizar'; $('barTotal').textContent = 'A cotizar';
+    }
+    var link = 'https://wa.me/' + CONFIG.WHATSAPP + '?text=' + encodeURIComponent(textoWhatsApp());
+    $('btnWa').href = link; $('barWa').href = link;
+    $('bar').classList.add('show'); $('bar').setAttribute('aria-hidden', 'false');
+  }
+
+  function nombreTipo(t) { return t === 'mono' ? 'Monofocal' : t === 'bifocal' ? 'Bifocal' : 'Multifocal'; }
+  function lineaOjo(n, esf, cil, eje) { return n + ': ESF ' + sgn(esf).replace('−', '-') + '  CIL ' + sgn(cil).replace('−', '-') + (eje ? '  EJE ' + eje + '°' : ''); }
+  function detalleTexto() {
+    if (!ultimo) return '';
+    var r = ultimo.rx, q = ultimo.q, L = [];
+    L.push('Tipo: ' + nombreTipo(r.tipo));
+    L.push(lineaOjo('OD', r.odEsf, r.odCil, r.odEje));
+    L.push(lineaOjo('OI', r.oiEsf, r.oiCil, r.oiEje));
+    if (r.tipo !== 'mono' && r.add) L.push('ADD: +' + r.add.toFixed(2));
+    if (r.dp) L.push('DP: ' + r.dp + ' mm');
+    if (q.estado === 'ok') {
+      q.lineas.forEach(function (l) { L.push('• ' + l.t + ': ' + fmt(l.v)); });
+      L.push('TOTAL: ' + fmt(q.total));
+    } else L.push('Requiere cotización personalizada');
+    return L.join('\n');
+  }
+  function textoWhatsApp() {
+    var d = datos();
+    return 'Hola Óptica Marcial 👋 Quiero confirmar mi cotización N° ' + state.id + '\n\n' +
+      'Nombre: ' + d.nombre + '\n' + detalleTexto();
+  }
+
+  /* ---- Interacciones del paso 4 ---- */
+  $('config').addEventListener('click', function (ev) {
+    var a = ev.target.closest('.wa-help');
+    if (a) return;
+    var b = ev.target.closest('[data-g]');
+    if (!b || b.disabled) return;
+    var g = b.dataset.g, v = b.dataset.v, c = state.cfg;
+    if (g.indexOf('.') > 0) { var p = g.split('.'); c[p[0]][p[1]] = v; }
+    else c[g] = v;
+    render();
+  });
+  $('config').addEventListener('change', function (ev) {
+    var s = ev.target; if (!s.dataset.k) return;
+    state.cfg[s.dataset.k][s.dataset.f] = s.value; render();
+  });
+  document.addEventListener('click', function (ev) {
+    var a = ev.target.closest('.wa-help');
+    if (!a) return;
+    ev.preventDefault();
+    var t = 'Hola Óptica Marcial 👋 Tengo una consulta sobre mi receta' + (state.id ? ' (cotización N° ' + state.id + ')' : '') + '.';
+    window.open('https://wa.me/' + CONFIG.WHATSAPP + '?text=' + encodeURIComponent(t), '_blank', 'noopener');
+  });
+  function alConfirmar() { enviar('whatsapp'); track('Contact'); }
+  $('btnWa').addEventListener('click', alConfirmar);
+  $('barWa').addEventListener('click', alConfirmar);
+
+  /* ---- Envío al registro (Google Sheets + Telegram) ---- */
+  function payload(evento) {
+    var d = datos(), u = new URLSearchParams(location.search);
+    return {
+      evento: evento, id: state.id, nombre: d.nombre, correo: d.correo, telefono: d.telefono, ofertas: d.ofertas, website: d.website,
+      tipo: nombreTipo(state.tipo), rx: ultimo ? ultimo.rx : rx(),
+      estado: ultimo ? ultimo.q.estado : '', total: ultimo && ultimo.q.estado === 'ok' ? ultimo.q.total : null,
+      lineas: ultimo && ultimo.q.estado === 'ok' ? ultimo.q.lineas : [],
+      detalle: detalleTexto(),
+      utm_source: u.get('utm_source') || '', utm_campaign: u.get('utm_campaign') || '', utm_content: u.get('utm_content') || '',
+      fbclid: u.get('fbclid') ? 'sí' : '', pagina: location.href.split('?')[0]
+    };
+  }
+  function enviar(evento) {
+    if (!CONFIG.ENDPOINT || !state.id) return;
+    var body = JSON.stringify(payload(evento));
+    state.ultimoEnviado = detalleTexto();
+    try {
+      if (evento !== 'cotizacion' && navigator.sendBeacon) {
+        navigator.sendBeacon(CONFIG.ENDPOINT, new Blob([body], { type: 'text/plain;charset=utf-8' }));
+      } else {
+        fetch(CONFIG.ENDPOINT, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: body, keepalive: true });
+      }
+    } catch (e) { /* sin conexión: no bloquea al cliente */ }
+  }
+  // si el cliente cambió su configuración y se va sin confirmar, actualizamos la cotización guardada
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden' && state.revelado && detalleTexto() !== state.ultimoEnviado) enviar('actualizacion');
+  });
+
+  /* ---- Pixel de Meta (opcional) ---- */
+  function track(ev) { try { if (window.fbq) fbq('track', ev); } catch (e) {} }
+  if (CONFIG.PIXEL_ID) {
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', CONFIG.PIXEL_ID); fbq('track', 'PageView');
+  }
+})();
+</script>
+</body>
+</html>
