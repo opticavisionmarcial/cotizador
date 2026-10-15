@@ -96,6 +96,8 @@ details.help[open] summary::before{content:"− "}
 .modelos-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .modelos-btns .btn{padding:11px 10px;font-size:14px}
 .btn-ig{background:linear-gradient(45deg,#F58529,#DD2A7B 55%,#8134AF);color:#fff}
+.card.dos{border-color:#25D366;background:#F3FCF6}
+.card.dos .wa-txt{color:#128C4A}
 .btn-wa{background:#25D366;color:#06210f}
 .btn[aria-busy="true"]{opacity:.7}
 
@@ -327,8 +329,8 @@ footer .tag{font-family:var(--f-display);font-style:italic;color:var(--gold-ink)
   </div>
 </div>
 
-<script src="precios.js?v=8"></script>
-<script src="catalogo.js?v=8"></script>
+<script src="precios.js?v=9"></script>
+<script src="catalogo.js?v=9"></script>
 <script>
 /* ====== CONFIGURACIÓN ====== */
 var CONFIG = {
@@ -473,6 +475,12 @@ var CONFIG = {
     }).join('') + '</div>' + verModelos();
   }
 
+  function dosLentes(precio1) {
+    return '<div class="sub-h">¿Cuántos lentes?</div><div class="cards">' +
+      '<div class="card on"><span class="t">1 lente</span><span class="d">Completo, con montura</span><span class="p">' + fmt(precio1) + '</span></div>' +
+      '<button type="button" class="card dos" data-act="dos"><span class="t">2 lentes</span><span class="d">Tu receta no entra en la promo, pero te cotizamos 2 lentes por WhatsApp</span><span class="p sm wa-txt">Consultar por WhatsApp ›</span></button></div>';
+  }
+
   function verModelos() {
     return '<div class="modelos"><p>Mira nuestros modelos clásicos, Merel y clip-on:</p><div class="modelos-btns">' +
       '<a class="btn btn-ig" href="' + INSTAGRAM + '" target="_blank" rel="noopener">Ver en Instagram</a>' +
@@ -513,8 +521,9 @@ var CONFIG = {
         h += '<div class="sub-h">¿Cuántos lentes?</div><div class="cards">' +
           '<button type="button" class="card' + (c.modo === 'uno' ? ' on' : '') + '" data-g="modo" data-v="uno"><span class="t">1 lente</span><span class="d">Completo, con montura</span><span class="p">' + fmt(e.normal) + '</span></button>' +
           '<button type="button" class="card' + (c.modo === 'promo' ? ' on' : '') + '" data-g="modo" data-v="promo"><span class="badge">Promo</span><span class="t">2 lentes</span><span class="d">Clásico + clásico, o clásico + Merel / clip-on</span><span class="p">desde ' + fmt(OM.PRECIOS.promo2.clasicoClasico) + '</span></button></div>';
-      } else if (e.promo && c.material === 'ultra') {
-        h += '<p class="hint">La promo de 2 lentes es con cristal normal. Con ultra delgado se cotiza por lente.</p>';
+      } else {
+        h += dosLentes(c.material === 'ultra' ? e.ultra : e.normal);
+        if (e.promo) h += '<p class="hint">La promo de 2 lentes es con cristal normal. Con ultra delgado te cotizamos los 2 lentes por WhatsApp.</p>';
       }
 
       if (c.modo === 'promo') {
@@ -535,6 +544,8 @@ var CONFIG = {
       });
       h += '</div>';
       if (r.tipo === 'bifocal' && ops.length < 3) h += '<p class="hint">Con tu ADD el bifocal clásico no está disponible; te mostramos las opciones que sí sirven.</p>';
+      var opSel = ops.filter(function (o) { return o.id === c.opcion; })[0] || ops[0];
+      h += dosLentes(opSel.precio);
       h += '<div class="sub-h">Tipo de montura</div>' + bloqueMontura('l1', c.l1) +
            '<div class="sub-h">Tratamiento</div>' + bloqueTrat('l1', c.l1, q.info.disponible, true);
       h += '<p class="hint">Te enviaremos una guía por WhatsApp para tomar bien tus medidas.</p>';
@@ -546,7 +557,7 @@ var CONFIG = {
     res.hidden = false;
     $('qid').textContent = 'N° ' + state.id + ' · ' + nombreTipo(r.tipo);
     if (q.estado === 'ok') {
-      $('lines').innerHTML = q.lineas.map(function (l) { return '<div class="ln"><span>' + esc(l.t) + '</span><span>' + (l.v ? fmt(l.v) : 'Incluida') + '</span></div>'; }).join('');
+      $('lines').innerHTML = q.lineas.map(function (l) { return '<div class="ln"><span>' + esc(l.t) + '</span><span>' + (l.v ? fmt(l.v) : (/montura/i.test(l.t) ? 'Incluida' : 'Incluido')) + '</span></div>'; }).join('');
       $('total').textContent = fmt(q.total); $('barTotal').textContent = fmt(q.total);
     } else {
       $('lines').innerHTML = '<div class="ln"><span>' + (q.estado === 'consulta' ? 'Cotización personalizada por WhatsApp' : 'Falta la ADD de tu receta') + '</span><span>—</span></div>';
@@ -570,8 +581,9 @@ var CONFIG = {
     if (r.tipo !== 'mono' && r.add) L.push('ADD: +' + r.add.toFixed(2));
     if (r.dp) L.push('DP: ' + r.dp + ' mm');
     if (q.estado === 'ok') {
-      q.lineas.forEach(function (l) { L.push('• ' + l.t + ': ' + (l.v ? fmt(l.v) : 'incluida')); });
+      q.lineas.forEach(function (l) { L.push('• ' + l.t + ': ' + (l.v ? fmt(l.v) : (/montura/i.test(l.t) ? 'incluida' : 'incluido'))); });
       L.push('TOTAL: ' + fmt(q.total));
+      if (state.quiere2) L.push('📌 Quiere cotizar 2 lentes');
       if (state.modelo) L.push('Modelo que me gustó: ' + state.modelo.nombre + ' ' + state.modelo.url);
     } else L.push('Requiere cotización personalizada');
     return L.join('\n');
@@ -586,6 +598,8 @@ var CONFIG = {
   $('config').addEventListener('click', function (ev) {
     var a = ev.target.closest('.wa-help');
     if (a) return;
+    var d2 = ev.target.closest('[data-act="dos"]');
+    if (d2) { pedirDos(); return; }
     var b = ev.target.closest('[data-g]');
     if (!b || b.disabled) return;
     var g = b.dataset.g, v = b.dataset.v, c = state.cfg;
@@ -604,6 +618,13 @@ var CONFIG = {
     var t = 'Hola Óptica Marcial 👋 Tengo una consulta sobre mi receta' + (state.id ? ' (cotización N° ' + state.id + ')' : '') + '.';
     window.open('https://wa.me/' + CONFIG.WHATSAPP + '?text=' + encodeURIComponent(t), '_blank', 'noopener');
   });
+  function pedirDos() {
+    state.quiere2 = true;
+    render();
+    enviar('whatsapp'); track('Contact');
+    var t = 'Hola Óptica Marcial 👋 Me interesa cotizar 2 lentes (cotización N° ' + state.id + ').\n\nNombre: ' + datos().nombre + '\nEsta es mi cotización por 1 lente:\n' + detalleTexto() + '\n\n¿Me pueden dar un precio por los 2?';
+    window.open('https://wa.me/' + CONFIG.WHATSAPP + '?text=' + encodeURIComponent(t), '_blank', 'noopener');
+  }
   function alConfirmar() { enviar('whatsapp'); track('Contact'); }
   $('btnWa').addEventListener('click', alConfirmar);
   $('barWa').addEventListener('click', alConfirmar);
