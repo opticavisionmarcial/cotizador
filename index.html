@@ -329,14 +329,15 @@ footer .tag{font-family:var(--f-display);font-style:italic;color:var(--gold-ink)
   </div>
 </div>
 
-<script src="precios.js?v=9"></script>
-<script src="catalogo.js?v=9"></script>
+<script src="precios.js?v=10"></script>
+<script src="catalogo.js?v=10"></script>
 <script>
 /* ====== CONFIGURACIÓN ====== */
 var CONFIG = {
   ENDPOINT: 'https://script.google.com/macros/s/AKfycbxNODCMczFLpbrsYlrKsi3NqicgdNgwMoGehLlWaV_E2gAThs4aFbpejgE7nfGYIorr/exec',                 // URL de la aplicación web de Google Apps Script (termina en /exec)
   WHATSAPP: '56934965751',      // número de la óptica, sin + ni espacios
-  PIXEL_ID: '1392846116016676'                  // ID del Pixel de Meta (opcional)
+  PIXEL_ID: '1872824970739859',                 // Pixel de la cuenta publicitaria (campañas)
+  PIXEL_ID_2: '1392846116016676'                // Pixel de Tiendanube (respaldo)
 };
 /* =========================== */
 
@@ -716,7 +717,7 @@ var CONFIG = {
   function track(ev) { try { if (window.fbq) fbq('track', ev); } catch (e) {} }
   if (CONFIG.PIXEL_ID) {
     !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', CONFIG.PIXEL_ID); fbq('track', 'PageView');
+    fbq('init', CONFIG.PIXEL_ID); if (CONFIG.PIXEL_ID_2) fbq('init', CONFIG.PIXEL_ID_2); fbq('track', 'PageView');
   }
 })();
 </script>
