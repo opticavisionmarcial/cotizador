@@ -207,7 +207,7 @@ footer .tag{font-family:var(--f-display);font-style:italic;color:var(--gold-ink)
   <header>
     <div class="brand"><div class="iso" aria-hidden="true">M</div><b>ÓPTICA MARCIAL</b></div>
     <h1>Conoce el precio de tus lentes <em>en un minuto</em></h1>
-    <p class="lead">Ingresa tu receta y te mostramos el valor al instante. Sin registrarte y sin compromiso.</p>
+    <p class="lead">Déjanos tus datos, ingresa tu receta y te mostramos el valor al instante. Sin compromiso.</p>
     <div class="promo-strip">
       <span class="chip">1 lente completo <strong>$34.990</strong></span>
       <span class="chip">Promo 2 lentes <strong>$49.990</strong></span>
@@ -217,9 +217,26 @@ footer .tag{font-family:var(--f-display);font-style:italic;color:var(--gold-ink)
     <p class="hero-note">Montura incluida en todos los precios</p>
   </header>
 
+  <!-- PASO 1 -->
+  <section class="step" id="s1">
+    <div class="step-h"><span class="num">1</span><div><h2>Tus datos</h2><p>Para guardarte la cotización y responderte por WhatsApp.</p></div></div>
+    <div id="datosBox">
+            <form class="stack" id="fDatos" novalidate>
+        <div class="grid2">
+          <div><label class="f" for="nombre">Nombre</label><input class="inp" id="nombre" autocomplete="name" placeholder="Ej: Carolina Rojas"></div>
+          <div><label class="f" for="telefono">WhatsApp</label><input class="inp" id="telefono" type="tel" inputmode="tel" autocomplete="tel" placeholder="+56 9 1234 5678"></div>
+        </div>
+        <div><label class="f" for="correo">Correo <span style="text-transform:none">(opcional, para enviarte la cotización por correo)</span></label><input class="inp" id="correo" type="email" inputmode="email" autocomplete="email" placeholder="tucorreo@gmail.com"></div>
+        <div class="hp" aria-hidden="true"><label for="website">No llenar</label><input id="website" tabindex="-1" autocomplete="off"></div>
+        <label class="check" id="ofertasWrap" hidden><input type="checkbox" id="ofertas" checked><span>Quiero recibir ofertas y novedades de Óptica Marcial en mi correo. Puedo darme de baja cuando quiera.</span></label>
+      </form>
+      <div id="errDatos" class="err" hidden></div>
+    </div>
+  </section>
+
   <!-- PASO 2 -->
   <section class="step" id="s2">
-    <div class="step-h"><span class="num">1</span><div><h2>¿Qué lentes necesitas?</h2><p>Si tu receta trae <b>ADD</b> (adición), son bifocales o multifocales.</p></div></div>
+    <div class="step-h"><span class="num">2</span><div><h2>¿Qué lentes necesitas?</h2><p>Si tu receta trae <b>ADD</b> (adición), son bifocales o multifocales.</p></div></div>
     <div class="tipos" role="radiogroup" aria-label="Tipo de lente">
       <button type="button" class="opt on" data-tipo="mono" role="radio" aria-checked="true"><b>Monofocal</b><span>Para lejos o para cerca</span></button>
       <button type="button" class="opt" data-tipo="bifocal" role="radio" aria-checked="false"><b>Bifocal</b><span>Lejos y cerca, con línea</span></button>
@@ -229,7 +246,7 @@ footer .tag{font-family:var(--f-display);font-style:italic;color:var(--gold-ink)
 
   <!-- PASO 3 -->
   <section class="step" id="s3">
-    <div class="step-h"><span class="num">2</span><div><h2>Tu receta</h2><p>Copia los valores tal como aparecen. Si un casillero viene vacío, déjalo en 0.00.</p></div></div>
+    <div class="step-h"><span class="num">3</span><div><h2>Tu receta</h2><p>Copia los valores tal como aparecen. Si un casillero viene vacío, déjalo en 0.00.</p></div></div>
     <div class="rx">
       <span></span><span class="ch">Esférico</span><span class="ch">Cilindro</span><span class="ch">Eje</span>
       <span class="eye" title="Ojo derecho">OD</span>
@@ -262,7 +279,7 @@ footer .tag{font-family:var(--f-display);font-style:italic;color:var(--gold-ink)
 
   <!-- PASO 4 -->
   <section class="step locked" id="s4" aria-disabled="true">
-    <div class="step-h"><span class="num">3</span><div><h2>Arma tus lentes</h2><p>Elige cristal, montura y tratamiento. El precio se actualiza al instante.</p></div></div>
+    <div class="step-h"><span class="num">4</span><div><h2>Arma tus lentes</h2><p>Elige cristal, montura y tratamiento. El precio se actualiza al instante.</p></div></div>
     <div id="config"><p class="hint" style="margin:0">Completa los pasos anteriores y toca <b>Ver mi precio</b>.</p></div>
   </section>
 
@@ -274,19 +291,6 @@ footer .tag{font-family:var(--f-display);font-style:italic;color:var(--gold-ink)
     <div id="modeloBox"></div>
     <div class="total"><span>Total</span><strong id="total">$0</strong></div>
     <p class="incl">Incluye montura, 2 cristales con antirreflejo y filtro UV, armado y examen visual gratis en la óptica.</p>
-    <div class="datos-box" id="datosBox">
-      <div class="sub-h" style="margin-top:4px">Tus datos para confirmar</div>
-      <form class="stack" id="fDatos" novalidate>
-        <div class="grid2">
-          <div><label class="f" for="nombre">Nombre</label><input class="inp" id="nombre" autocomplete="name" placeholder="Ej: Carolina Rojas"></div>
-          <div><label class="f" for="telefono">WhatsApp</label><input class="inp" id="telefono" type="tel" inputmode="tel" autocomplete="tel" placeholder="+56 9 1234 5678"></div>
-        </div>
-        <div><label class="f" for="correo">Correo <span style="text-transform:none">(opcional, para enviarte la cotización)</span></label><input class="inp" id="correo" type="email" inputmode="email" autocomplete="email" placeholder="tucorreo@gmail.com"></div>
-        <div class="hp" aria-hidden="true"><label for="website">No llenar</label><input id="website" tabindex="-1" autocomplete="off"></div>
-        <label class="check" id="ofertasWrap" hidden><input type="checkbox" id="ofertas" checked><span>Quiero recibir ofertas y novedades de Óptica Marcial en mi correo. Puedo darme de baja cuando quiera.</span></label>
-      </form>
-      <div id="errDatos" class="err" hidden></div>
-    </div>
     <a class="btn btn-wa" id="btnWa" href="#" target="_blank" rel="noopener">Confirmar por WhatsApp</a>
     <p class="hint" style="text-align:center">Te respondemos para coordinar la toma de medidas, el pago y la entrega: retiro en la óptica, delivery dentro de Santiago o envío a regiones.</p>
     <div class="trust">
@@ -330,8 +334,8 @@ footer .tag{font-family:var(--f-display);font-style:italic;color:var(--gold-ink)
   </div>
 </div>
 
-<script src="precios.js?v=11"></script>
-<script src="catalogo.js?v=11"></script>
+<script src="precios.js?v=12"></script>
+<script src="catalogo.js?v=12"></script>
 <script>
 /* ====== CONFIGURACIÓN ====== */
 var CONFIG = {
@@ -414,19 +418,21 @@ var CONFIG = {
   function exigirDatos() {
     var e = validarDatos(), box = $('errDatos');
     if (!e.length) { box.hidden = true; return true; }
-    box.hidden = false; box.textContent = 'Para confirmar, completa ' + e.join(' y ') + '.';
-    $('datosBox').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    box.hidden = false; box.textContent = 'Para ver tu precio, completa ' + e.join(' y ') + ' en el paso 1.';
+    var ev2 = $('errVer'); if (ev2) { ev2.hidden = false; ev2.textContent = 'Primero completa tus datos en el paso 1.'; }
+    $('s1').scrollIntoView({ behavior: 'smooth', block: 'start' });
     var f = !datos().nombre ? 'nombre' : (datos().telefono.replace(/\D/g, '').length < 8 ? 'telefono' : 'correo');
     setTimeout(function () { try { $(f).focus({ preventScroll: true }); } catch (x) {} }, 350);
     return false;
   }
   $('correo').addEventListener('input', function () { $('ofertasWrap').hidden = !this.value.trim(); });
   ['nombre', 'telefono', 'correo'].forEach(function (id) {
-    $(id).addEventListener('input', function () { if (!$('errDatos').hidden && !validarDatos().length) $('errDatos').hidden = true; render(); });
+    $(id).addEventListener('input', function () { if (!$('errDatos').hidden && !validarDatos().length) { $('errDatos').hidden = true; $('errVer').hidden = true; } render(); });
     $(id).addEventListener('change', function () { if (state.revelado && !validarDatos().length && firma() !== state.ultimoEnviado) enviar('datos'); });
   });
 
   $('btnVer').addEventListener('click', function () {
+    if (!exigirDatos()) return;
     var box = $('errVer');
     var r = rx();
     if (state.tipo !== 'mono' && !r.add) {
