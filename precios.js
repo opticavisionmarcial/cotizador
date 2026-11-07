@@ -27,16 +27,18 @@
     // ---------- BIFOCAL / MULTIFOCAL ----------
     bifocal: [
       { id: 'bi-clasico', nombre: 'Bifocal clásico', detalle: 'Línea visible · CR-39', precio: 89990, addMin: 1.00, addMax: 3.00, azul: true, foto: true },
-      { id: 'bi-premium', nombre: 'Bifocal premium', detalle: 'Línea más suave · Cross BSoft / Freeline', precio: 104990, addMin: 0.75, addMax: 3.50, azul: true, foto: true },
-      { id: 'bi-ultra',   nombre: 'Bifocal ultra delgado', detalle: 'Cross 1.67 · más liviano y delgado', precio: 159990, addMin: 0.75, addMax: 3.50, azul: false, foto: false }
+      { id: 'bi-premium', nombre: 'Bifocal invisible', detalle: 'Sin línea visible · Cross BSoft / Freeline', precio: 139990, addMin: 0.75, addMax: 3.50, azul: true, foto: true },
+      { id: 'bi-ultra',   nombre: 'Bifocal ultra delgado', detalle: 'Cross 1.67 · más liviano y delgado', precio: 179990, addMin: 0.75, addMax: 3.50, azul: false, foto: false }
     ],
+    // Precio fijo igual para toda receta (nov 2026). maxCil: solo si el cilindro no supera ese valor (cristal de stock)
     multifocal: [
-      { id: 'mu-esencial', nombre: 'Multifocal esencial', detalle: 'Cross One · visión de lejos, intermedia y cerca', precio: 139990, addMin: 0.75, addMax: 3.50, azul: true, foto: true },
-      { id: 'mu-premium',  nombre: 'Multifocal premium',  detalle: 'Precisa · campos de visión más amplios', precio: 179990, addMin: 0.75, addMax: 3.50, azul: true, foto: false },
-      { id: 'mu-alta',     nombre: 'Multifocal alta gama', detalle: 'Dynamics · diseño digital personalizado', precio: 259990, addMin: 0.75, addMax: 3.50, azul: false, foto: false },
-      { id: 'mu-ultra',    nombre: 'Multifocal ultra delgado', detalle: 'Cross One 1.67 · más liviano y delgado', precio: 219990, addMin: 0.75, addMax: 3.50, azul: false, foto: false }
+      { id: 'mu-basico',   nombre: 'Multifocal básico', detalle: 'Orgánico de stock · campo visual más angosto', precio: 139990, addMin: 1.00, addMax: 3.00, maxCil: 0.50, azul: false, foto: false },
+      { id: 'mu-esencial', nombre: 'Multifocal Cross One', detalle: 'Cross One · campo de visión más amplio', precio: 179990, addMin: 0.75, addMax: 3.50, azul: true, foto: true },
+      { id: 'mu-premium',  nombre: 'Multifocal premium',  detalle: 'Precisa · campos de visión más amplios', precio: 219990, addMin: 0.75, addMax: 3.50, azul: true, foto: false },
+      { id: 'mu-ultra',    nombre: 'Multifocal ultra delgado', detalle: 'Cross One 1.67 · más liviano y delgado', precio: 239990, addMin: 0.75, addMax: 3.50, azul: false, foto: false },
+      { id: 'mu-alta',     nombre: 'Multifocal alta gama', detalle: 'Dynamics · diseño digital personalizado', precio: 259990, addMin: 0.75, addMax: 3.50, azul: false, foto: false }
     ],
-    presbiExtras: { azul: 30000, foto: 60000, sol: 10000 },
+    presbiExtras: { azul: 20000, foto: 60000, sol: 10000 },
     presbiRecargoAlta: 10000,          // esférico sobre ±7 o cilindro sobre 4
     presbiLimite: { esf: 12, cil: 6 }  // sobre esto: cotizar por WhatsApp
   };
@@ -124,7 +126,7 @@
       if (esf > lim.esf || cil > lim.cil || add > 3.5 || add < 0.75) {
         out.estado = 'consulta'; out.motivo = 'Tu receta necesita un cristal fabricado a medida.'; return out;
       }
-      var disponibles = lista.filter(function (o) { return add >= o.addMin && add <= o.addMax; });
+      var disponibles = lista.filter(function (o) { return add >= o.addMin && add <= o.addMax && (o.maxCil == null || cil <= o.maxCil); });
       out.info.opciones = disponibles;
       var op = disponibles.filter(function (o) { return o.id === c.opcion; })[0] || disponibles[0];
       c.opcion = op.id; c.modo = 'uno';
